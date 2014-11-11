@@ -3,5 +3,7 @@ var Schema = mongoose.Schema;
 
 var bookConfigSchema = new Schema({
    name: String,
-   seeds: [String]
+   seeds: [String],
+   depth: Number,
+   queries: [String]
 });
