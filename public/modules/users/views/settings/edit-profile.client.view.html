@@ -4,26 +4,26 @@
 		<form name="userForm" data-ng-submit="updateUserProfile(userForm.$valid)" class="signin form-horizontal" autocomplete="off">
 			<fieldset>
 				<div class="form-group">
-					<label for="firstName">First Name</label>
+					<label for="firstName">名字</label>
 					<input type="text" id="firstName" name="firstName" class="form-control" data-ng-model="user.firstName" placeholder="First Name">
 				</div>
 				<div class="form-group">
-					<label for="lastName">Last Name</label>
+					<label for="lastName">姓氏</label>
 					<input type="text" id="lastName" name="lastName" class="form-control" data-ng-model="user.lastName" placeholder="Last Name">
 				</div>
 				<div class="form-group">
-					<label for="email">Email</label>
+					<label for="email">邮箱</label>
 					<input type="email" id="email" name="email" class="form-control" data-ng-model="user.email" placeholder="Email">
 				</div>
 				<div class="form-group">
-					<label for="username">Username</label>
+					<label for="username">帐号</label>
 					<input type="text" id="username" name="username" class="form-control" data-ng-model="user.username" placeholder="Username">
 				</div>
 				<div class="text-center form-group">
-					<button type="submit" class="btn btn-large btn-primary">Save Profile</button>
+					<button type="submit" class="btn btn-large btn-primary">保存</button>
 				</div>
 				<div data-ng-show="success" class="text-center text-success">
-					<strong>Profile Saved Successfully</strong>
+					<strong>保存成功</strong>
 				</div>
 				<div data-ng-show="error" class="text-center text-danger">
 					<strong data-ng-bind="error"></strong>
