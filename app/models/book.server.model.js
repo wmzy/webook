@@ -1,6 +1,15 @@
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+'use strict';
 
+/**
+ * Module dependencies.
+ */
+var mongoose = require('mongoose'),
+	Schema = mongoose.Schema;
+
+
+/**
+ * Resource Schema
+ */
 var ResourceSchema = new Schema({
 	url: String,
 	dom: String,
@@ -13,8 +22,17 @@ var ResourceSchema = new Schema({
 		message: String
 	}
 });
-var BookConfigSchema = new Schema({
-	name: String,
+
+/**
+ * Book Schema
+ */
+var BookSchema = new Schema({
+	name: {
+		type: String,
+		default: '未命名的电子书',
+		required: 'Please fill Book name',
+		trim: true
+	},
 	contents: [String],
 	ignoreError: {type: Boolean, default: true},
 	storePath: String,
@@ -27,14 +45,22 @@ var BookConfigSchema = new Schema({
 	// filters
 	depth: {type: Number, default: 1},
 	urlMatch: [String],
-	urlQueries: [String]
+	urlQueries: [String],
+	created: {
+		type: Date,
+		default: Date.now
+	},
+	user: {
+		type: Schema.ObjectId,
+		ref: 'User'
+	}
 });
 
 /**
  * validate
  */
 // _^(?:(?:https?|ftp)://)(?:\S+(?::\S*)?@)?(?:(?!10(?:\.\d{1,3}){3})(?!127(?:\.\d{1,3}){3})(?!169\.254(?:\.\d{1,3}){2})(?!192\.168(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\x{00a1}-\x{ffff}0-9]+-?)*[a-z\x{00a1}-\x{ffff}0-9]+)(?:\.(?:[a-z\x{00a1}-\x{ffff}0-9]+-?)*[a-z\x{00a1}-\x{ffff}0-9]+)*(?:\.(?:[a-z\x{00a1}-\x{ffff}]{2,})))(?::\d{2,5})?(?:/[^\s]*)?$_iuS
-BookConfigSchema
+BookSchema
 	.path('contents')
 	.validate(function (v) {
 		return v.every(function (e) {
@@ -43,4 +69,4 @@ BookConfigSchema
 		});
 	});
 
-mongoose.model('BookConfig', BookConfigSchema);
+mongoose.model('Book', BookSchema);
