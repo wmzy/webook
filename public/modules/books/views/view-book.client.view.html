@@ -2,7 +2,7 @@
 	<div class="page-header">
 		<h1 data-ng-bind="book.name"></h1>
 	</div>
-	<div class="pull-right" data-ng-show="((authentication.user) && (authentication.user._id == book.user._id))">
+	<div class="pull-right" data-ng-show="((authentication.user) && (authentication.user._id == book.author._id))">
 		<a class="btn btn-primary" href="/#!/books/{{book._id}}/edit">
 			<i class="glyphicon glyphicon-edit"></i>
 		</a>
@@ -12,10 +12,17 @@
 	</div>
 	<small>
 		<em class="text-muted">
-			Posted on
-			<span data-ng-bind="book.created | date:'mediumDate'"></span>
-			by
-			<span data-ng-bind="book.user.displayName"></span>
+			<span data-ng-bind="book.author.displayName"></span>
+			创建与
+			<span data-ng-bind="book.created | date:'yyyy-MM-dd HH:mm:ss Z'"></span>
 		</em>
 	</small>
+	<div class="pager">
+		<a class="pull-right btn btn-primary" data-ng-hide="book.content" href="/#!/books/{{book._id}}/edit-content">
+			<i class="glyphicon glyphicon-edit" >创建目录</i>
+		</a>
+		<a class="pull-right btn btn-primary" data-ng-show="book.content" href="/#!/books/{{book._id}}/edit-content">
+			<i class="glyphicon glyphicon-edit" >修改目录</i>
+		</a>
+	</div>
 </section>

@@ -8,7 +8,7 @@ var mongoose = require('mongoose'),
 
 
 /**
- * Resource Schema
+ * Resource sub Schema
  */
 var ResourceSchema = new Schema({
 	url: String,
@@ -50,7 +50,7 @@ var BookSchema = new Schema({
 		type: Date,
 		default: Date.now
 	},
-	user: {
+	author: {
 		type: Schema.ObjectId,
 		ref: 'User'
 	}

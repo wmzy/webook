@@ -4,13 +4,12 @@
     </div>
     <div class="list-group">
         <a data-ng-repeat="book in books" data-ng-href="#!/books/{{book._id}}" class="list-group-item">
-			<small class="list-group-item-text">
-				Posted on
-				<span data-ng-bind="book.created | date:'medium'"></span>
-				by
-				<span data-ng-bind="book.user.displayName"></span>
-			</small>
 			<h4 class="list-group-item-heading" data-ng-bind="book.name"></h4>
+            <small class="list-group-item-text">
+                <span data-ng-bind="book.author.displayName"></span>
+                创建与
+                <span data-ng-bind="book.created | date:'yyyy-MM-dd HH:mm:ss Z'"></span>
+            </small>
         </a>
     </div>
     <div class="alert alert-warning text-center" data-ng-hide="!books.$resolved || books.length">
