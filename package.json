@@ -2,10 +2,10 @@
   "name": "webook",
   "description": "webook",
   "version": "0.0.1",
-  "author": "Wmzy",
+  "author": "wmzy",
   "engines": {
-    "node": "0.10.x",
-    "npm": "1.4.x"
+    "node": ">=0.12.2",
+    "npm": ">=2.7.4"
   },
   "scripts": {
     "start": "grunt",
