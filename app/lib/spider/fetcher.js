@@ -1,5 +1,6 @@
+'use strict';
 var superagent = require('superagent');
-var event = require('event');
+var events = require('events');
 var util = require('util');
 var async = require('async');
 var mime = require('mime');
@@ -11,15 +12,14 @@ var uuid = require('node-uuid');
 // http://nodejs.org/api/url.html
 var url = require('url');
 
-exports.Fetcher = function Fetcher(interval, concurrency, filepath) {
+function Fetcher(interval, concurrency, filepath) {
 	this.interval = interval;
 	this.filepath = filepath;
+	Fetcher._q = async.queue(fetch, concurrency);
 
-	event.EventEmitter.call(this);
-};
-util.inherits(Fetcher, event.EventEmitter);
-
-Fetcher._q = async.queue(fetch, concurrency);
+	events.EventEmitter.call(this);
+}
+util.inherits(Fetcher, events.EventEmitter);
 
 function fetch(task, callback) {
 	superagent
@@ -62,6 +62,7 @@ Fetcher.prototype.push = function (url) {
 		}
 		data.url = url;
 		self.emit('fetched', data);
-	})
+	});
 };
 
+exports.Fetcher = Fetcher;

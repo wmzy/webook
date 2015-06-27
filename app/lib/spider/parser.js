@@ -1,3 +1,4 @@
+'use strict';
 /**
  * 对dom进行裁剪，
  * 解析urls，

@@ -1,13 +1,15 @@
+'use strict';
 var Fetcher = require('./fetcher').Fetcher;
+var Parser = require('./parser').Fetcher;
 var mongoose = require('mongoose');
 var BookConfig = mongoose.model('BookConfig');
 
-var Worker = function (bookConfig) {
+function Worker (bookConfig) {
 	this.bookConfig = bookConfig;
 	this.fetcher = new Fetcher();
 	this.parser = new Parser();
 	this.urlMap = {};
-};
+}
 
 Worker.prototype.start = function () {
 	this.state = 'start';
