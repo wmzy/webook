@@ -12,8 +12,9 @@
     "npm": ">=2.7.4"
   },
   "scripts": {
-    "start": "grunt",
+    "start": "node server",
     "test": "grunt test",
+    "build": "grunt build",
     "postinstall": "if [ -d \"$OPENSHIFT_REPO_DIR\" ]; then HOME=$OPENSHIFT_REPO_DIR bower install --config.interactive=false; else bower install --config.interactive=false; fi;"
   },
   "dependencies": {
