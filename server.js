@@ -37,3 +37,4 @@ exports = module.exports = app;
 console.log('webook started on port ' + config.port);
 
 console.log('http://localhost:' + config.port);
+console.log(chalk.red(config.db));
