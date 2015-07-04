@@ -17,7 +17,7 @@ var db = mongoose.connect(config.db.uri, config.db.options, function (err) {
     if (err) {
         console.error(chalk.red('Could not connect to MongoDB!'));
         console.log(chalk.red(err));
-        console.log(chalk.red(config.db));
+        console.log(chalk.red(config.db.uri));
     }
 });
 
@@ -37,4 +37,4 @@ exports = module.exports = app;
 console.log('webook started on port ' + config.port);
 
 console.log('http://localhost:' + config.port);
-console.log(chalk.red(config.db));
+console.log(chalk.red(config.db.uri));
