@@ -3,7 +3,14 @@
 module.exports = {
 	hostname: process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1',
 	port: process.env.OPENSHIFT_NODEJS_PORT || 80,
-	db: process.env.MONGODB_URL + 'webook' || process.env.OPENSHIFT_MONGODB_DB_URL || process.env.MONGOLAB_URI || 'mongodb://' + (process.env.DB_1_PORT_27017_TCP_ADDR || 'localhost') + '/webook',
+	db: {
+		uri: process.env.MONGODB_URL + 'webook' || process.env.OPENSHIFT_MONGODB_DB_URL || process.env.MONGOLAB_URI || 'mongodb://' + (process.env.DB_1_PORT_27017_TCP_ADDR || 'localhost') + '/webook',
+		options: {
+			user: '',
+			pass: '',
+			db: { nativeParser: true }
+		}
+	},
 	assets: {
 		lib: {
 			css: [
