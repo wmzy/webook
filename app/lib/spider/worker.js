@@ -1,19 +1,22 @@
 'use strict';
-var Fetcher = require('./fetcher').Fetcher;
-var Parser = require('./parser').Fetcher;
-var mongoose = require('mongoose');
-var BookConfig = mongoose.model('BookConfig');
+
+var _ = require('lodash');
+var Fetcher = require('./fetcher');
+var Parser = require('./parser');
 
 function Worker (bookConfig) {
-	this.bookConfig = bookConfig;
+	this.bookConfig = _.defaults(bookConfig, {
+		fetcher: {}
+	});
 	this.fetcher = new Fetcher();
 	this.parser = new Parser();
 	this.urlMap = {};
 }
 
 Worker.prototype.start = function () {
-	this.state = 'start';
 	var self = this;
+	self.state = 'start';
+	var startPage = self.options.startPage;
 
 	this.fetcher.on('fetched', function (data) {
 		self.bookConfig.pages.push(data);
@@ -30,7 +33,7 @@ Worker.prototype.start = function () {
 	this.bookConfig.contents.forEach(function (content) {
 		if (urlMap[content]) return;
 		urlMap[content] = true;
-		this.fetcher.push(content);
+		self.fetcher.fetch(content);
 	});
 };
 

@@ -7,24 +7,22 @@ var mime = require('mime');
 var fs = require('fs');
 var path = require('path');
 var uuid = require('node-uuid');
-
-// url 模块是 Node.js 标准库里面的
-// http://nodejs.org/api/url.html
+var _ = require('lodash');
 var url = require('url');
 
-function Fetcher(interval, concurrency, filepath) {
-	this.interval = interval;
-	this.filepath = filepath;
-	Fetcher._q = async.queue(fetch, concurrency);
-
-	events.EventEmitter.call(this);
+function Fetcher(options) {
+	this.options = _.defaults(options, {
+		timeout: 3000
+	});
 }
-util.inherits(Fetcher, events.EventEmitter);
 
-function fetch(task, callback) {
+Fetcher.prototype.fetch = function (url, callback) {
+	var options = this.options;
+	if (options.baseUrl) url = url.resolve(options.baseUrl, url);
+
 	superagent
-		.get(task.url)
-		.timeout(3000)
+		.get(url)
+		.timeout(options.timeout)
 		.end(function (err, res) {
 			if (err) {
 				return callback(err);
@@ -38,31 +36,11 @@ function fetch(task, callback) {
 			}
 
 			if (res.type === 'text/html') {
-				return callback(null, {dom: res.text});
+				return callback(null, res.text);
 			}
 
-			var ext = mime.extension(res.type);
-			var savePath = path.join(task.path, uuid.v4() + '.' + ext);
-			var stream = fs.createWriteStream(savePath);
-			res.pipe(stream);
-			callback(null, {filePath: savePath});
+			callback(null, res);
 		});
-}
-
-Fetcher.prototype.push = function (url) {
-	var self = this;
-	Fetcher._q.push({url: url}, function (err, data) {
-		if (err) {
-			console.log(err);
-			self.emit('fetched', {
-				url: url,
-				err: err
-			});
-			return;
-		}
-		data.url = url;
-		self.emit('fetched', data);
-	});
 };
 
-exports.Fetcher = Fetcher;
+module.exports = Fetcher;
