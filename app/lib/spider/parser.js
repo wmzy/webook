@@ -7,13 +7,35 @@
  * @type {*|exports}
  */
 
+var url = require('url');
 var cheerio = require('cheerio');
+var _ = require('lodash');
 
-var Parser = function () {
-
+var Parser = function (options) {
+	this.options = _.defaults(options, {});
 };
 
-Parser.prototype.parse = function (dom) {
-	var $ = cheerio.load(dom);
+Parser.prototype.parse = function (html, pageUrl) {
+	var $ = cheerio.load(html);
 
+	var $body = $('body');
+	this.addAndFixUrls($body, pageUrl);
+
+	return $body.toString();
 };
+
+Parser.prototype.addAndFixUrls = function ($, pageUrl) {
+	var urlMap = this.options.urlMap;
+	$.find('a').each(function () {
+		var href = this.attribs['href'];
+		if (!href || href.startsWith('#')) return;
+
+		var hrefHash = url.format(href).hash || '';
+		var hrefWithoutHash = href.substr(0, href.length - hrefHash.length);
+		href = url.resolve(pageUrl, hrefWithoutHash);
+		var pageInfo = urlMap.add(href);
+		this.attribs['href'] = pageInfo.pathname + hrefHash;
+	});
+};
+
+module.exports = Parser;

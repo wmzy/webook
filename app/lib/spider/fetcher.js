@@ -1,7 +1,5 @@
 'use strict';
 var superagent = require('superagent');
-var events = require('events');
-var util = require('util');
 var async = require('async');
 var mime = require('mime');
 var fs = require('fs');
@@ -12,13 +10,13 @@ var url = require('url');
 
 function Fetcher(options) {
 	this.options = _.defaults(options, {
-		timeout: 3000
+		timeout: 3000,
+		maxContentLength: 102400
 	});
 }
 
 Fetcher.prototype.fetch = function (url, callback) {
 	var options = this.options;
-	if (options.baseUrl) url = url.resolve(options.baseUrl, url);
 
 	superagent
 		.get(url)
@@ -31,15 +29,15 @@ Fetcher.prototype.fetch = function (url, callback) {
 				return callback(res.err);
 			}
 
-			if (parseInt(res.header['content-length']) > 102400) {
-				return callback(null, {message: new Error('file too large')});
+			if (parseInt(res.header['content-length']) > options.maxContentLength) {
+				return callback(new Error('file too large'));
 			}
 
 			if (res.type === 'text/html') {
 				return callback(null, res.text);
 			}
 
-			callback(null, res);
+			callback(new Error('type err'));
 		});
 };
 
