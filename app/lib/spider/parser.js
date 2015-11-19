@@ -27,14 +27,14 @@ Parser.prototype.parse = function (html, pageUrl) {
 Parser.prototype.addAndFixUrls = function ($, pageUrl) {
 	var urlMap = this.options.urlMap;
 	$.find('a').each(function () {
-		var href = this.attribs['href'];
+		var href = this.attribs.href;
 		if (!href || href.startsWith('#')) return;
 
 		var hrefHash = url.format(href).hash || '';
 		var hrefWithoutHash = href.substr(0, href.length - hrefHash.length);
 		href = url.resolve(pageUrl, hrefWithoutHash);
 		var pageInfo = urlMap.add(href);
-		this.attribs['href'] = pageInfo.pathname + hrefHash;
+		this.attribs.href = pageInfo.pathname + hrefHash;
 	});
 };
 

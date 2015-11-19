@@ -8,8 +8,8 @@
     "url": "https://github.com/wmzy/webook.git"
   },
   "engines": {
-    "node": ">=0.12.2",
-    "npm": ">=2.7.4"
+    "node": ">=5.0.0",
+    "npm": ">=3.3.6"
   },
   "scripts": {
     "start": "node server",

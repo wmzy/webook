@@ -38,7 +38,7 @@ UrlMap.prototype.add = function (url) {
 
 	var pathname = this.relative(url);
 	return this.map[url] = {
-		state: 'waiting',
+		state: 'new',
 		pathname: pathname
 	};
 };
@@ -46,7 +46,7 @@ UrlMap.prototype.add = function (url) {
 UrlMap.prototype.addIndex = function (url) {
 	var pathname = this.relative(url);
 	return this.map[url] = {
-		state: 'waiting',
+		state: 'new',
 		pathname: pathname
 	};
 };
