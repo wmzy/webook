@@ -1,16 +1,12 @@
 'use strict';
 
 var Parser = require('../../../lib/spider/parser');
-var UrlMap = require('../../../lib/spider/url-map');
 var _ = require('lodash');
 
 describe('Parser tests', function () {
 	it('Should parse html right', function () {
 		var baseUrl = 'http://nodejs.org/api/';
 		var parser = new Parser({
-			urlMap: new UrlMap({
-				baseUrl: baseUrl
-			})
 		});
 		var pageUrl = 'http://nodejs.org/api/index.html';
 		var href1 = 'fs.html';

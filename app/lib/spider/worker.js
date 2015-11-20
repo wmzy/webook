@@ -10,16 +10,21 @@ var cheerio = require('cheerio');
 var _ = require('lodash');
 var Fetcher = require('./fetcher');
 var PageInfo = require('./page-info');
-var UrlMap = require('./url-map');
 
 function Worker (options) {
 	EventEmitter.call(this);
 
 	this.options = _.defaults(options, {
 		concurrency: 5,
-		saveStrategy: 'tree', // flat
 		fetcher: {}
 	});
+	if (this.options.index) this.indexInit();
+	if (this.options.contents) {
+		this.contents = this.options.contents;
+		this.baseUrl = this.options.baseUrl;
+	}
+
+	this.fileRoot = this.options.fileRoot;
 	this.taskQueue = null;
 	this.fetcher = new Fetcher();
 	this.urlMap = {};
@@ -27,18 +32,35 @@ function Worker (options) {
 
 util.inherits(Worker, EventEmitter);
 
+Worker.prototype.indexInit = function () {
+	var index = this.options.index;
+	var urlObj = url.parse(index);
+	urlObj.hash = null;
+	urlObj.query = null;
+	urlObj.search = null;
+	urlObj.path = null;
+	if (!urlObj.pathname) {
+		urlObj.pathname = '/';
+	}
+	if (!urlObj.pathname.endsWith('/')) {
+		this.index = url.format(urlObj);
+		var pa = urlObj.pathname.split('/').pop();
+		urlObj.pathname = pa.join('/');
+	} else {
+		this.index = url.format(urlObj) + 'index.html';
+	}
+	this.baseUrl = url.format(urlObj);
+	this.basePathname = urlObj.pathname;
+};
+
 Worker.prototype.start = function () {
 	if (this.state) return;
 	this.state = 'started';
 
 	var self = this;
 
-	var baseUrl = this.options.baseUrl;
-	var indexPage = this.options.indexPage;
+	var indexPage = this.index;
 	var urlMap = this.urlMap;
-
-	// todo: check baseUrl, indexPage
-	if (baseUrl) indexPage = url.resolve(self.options.baseUrl, indexPage);
 
 	this.taskQueue = async.queue(function (url, callback) {
 		var pageInfo = urlMap[url];
@@ -57,17 +79,22 @@ Worker.prototype.start = function () {
 		}
 	};
 
-	urlMap[indexPage] = new PageInfo();
+	if (this.index) {
+		var pageInfo = urlMap[indexPage] = new PageInfo();
+		pageInfo.pathname = 'index.html';
 
-	this.taskQueue.push(indexPage, function (err) {
-		if (err) self.emit('error', new Error('index page error'));
-	});
+		this.taskQueue.push(indexPage, function (err) {
+			if (err) self.emit('error', new Error('index page error'));
+		});
+	} else if (this.contents) {
+		this.pushContents();
+	}
 };
 
 Worker.prototype.fetch = function (url, callback) {
 	var self = this;
 	var urlMap = this.urlMap;
-	var basePath = this.options.basePath;
+	var fileRoot = this.fileRoot;
 
 	this.fetcher.fetch(url, function (err, data) {
 		if (err) {
@@ -80,36 +107,39 @@ Worker.prototype.fetch = function (url, callback) {
 
 			var parseResult = self.parse(data, url);
 			var pathname = urlMap.get(url).pathname;
-			fs.writeFile(path.join(basePath, pathname), parseResult, callback);
+			fs.writeFile(path.join(fileRoot, pathname), parseResult, callback);
 		}
 	});
 };
 
 Worker.prototype.parse = function (html, pageUrl) {
 	var $ = cheerio.load(html);
+	// todo: html filter
 
 	var $body = $('body');
-	this.addAndFixUrls($body, pageUrl);
+	this.pickAndFixUrls($body, pageUrl);
 
 	return $body.toString();
 };
 
-Worker.prototype.addAndFixUrls = function ($, pageUrl) {
+Worker.prototype.pickAndFixUrls = function ($, pageUrl) {
 	var self = this;
+	var pagePath = this.urlMap[pageUrl].pathname;
 	$.find('a').each(function () {
 		var href = this.attribs.href;
 		if (!href || href.startsWith('#')) return;
 
 		var hrefHash = url.format(href).hash || '';
 		var hrefWithoutHash = href.substr(0, href.length - hrefHash.length);
-		href = url.resolve(pageUrl, hrefWithoutHash);
-		var pageInfo = self.push(href);
-		if (pageInfo) this.attribs.href = pageInfo.pathname + hrefHash;
+		var resolvedUrl = url.resolve(pageUrl, hrefWithoutHash);
+		var pageInfo = self.push(resolvedUrl);
+		if (pageInfo) this.attribs.href = path.relative(pagePath, pageInfo.pathname) + hrefHash;
 	});
 };
 
 Worker.prototype.push = function (url) {
 	// todo: url filter
+	if (!url || !url.startsWith(this.baseUrl)) return false;
 
 	var pageInfo = this.urlMap[url];
 	if (pageInfo) return pageInfo;
@@ -117,9 +147,23 @@ Worker.prototype.push = function (url) {
 
 	pageInfo.state = 'waiting';
 	pageInfo.pathname = this.relative(url);
+	this.taskQueue.push(url);
 	return pageInfo;
 };
 
+Worker.prototype.pushContents = function (contents) {
+	var self = this;
+	if (!contents) contents = this.contents;
+	contents.forEach(function (content) {
+		self.push(content.url);
+		if (content.sub) self.pushContents(contents.sub);
+	});
+};
+
+/**
+ * 获取pageUrl相对于baseUrl的相对路径
+ * @param pageUrl
+ */
 Worker.prototype.relative = function (pageUrl) {
 	var urlObj = url.parse(pageUrl);
 	var relativePath = path.relative(this.basePathname, urlObj.pathname);

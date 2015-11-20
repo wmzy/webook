@@ -1,10 +1,8 @@
 'use strict';
 var superagent = require('superagent');
 var async = require('async');
-var mime = require('mime');
 var fs = require('fs');
 var path = require('path');
-var uuid = require('node-uuid');
 var _ = require('lodash');
 var url = require('url');
 

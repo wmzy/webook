@@ -1,7 +1,7 @@
 'use strict';
 
 function PageInfo() {
-	this.state = 'new'
+	this.state = 'new';
 }
 
 PageInfo.prototype.error = function (err) {

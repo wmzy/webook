@@ -19,12 +19,12 @@ Parser.prototype.parse = function (html, pageUrl) {
 	var $ = cheerio.load(html);
 
 	var $body = $('body');
-	this.addAndFixUrls($body, pageUrl);
+	this.pickAndFixUrls($body, pageUrl);
 
 	return $body.toString();
 };
 
-Parser.prototype.addAndFixUrls = function ($, pageUrl) {
+Parser.prototype.pickAndFixUrls = function ($, pageUrl) {
 	var urlMap = this.options.urlMap;
 	$.find('a').each(function () {
 		var href = this.attribs.href;
