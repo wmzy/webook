@@ -88,6 +88,9 @@ Worker.prototype.start = function () {
 		});
 	} else if (this.contents) {
 		this.pushContents();
+		if (_.keys(this.urlMap).length < 1) {
+			this.emit('error', new Error('contents empty'));
+		}
 	}
 };
 
@@ -100,14 +103,17 @@ Worker.prototype.fetch = function (url, callback) {
 		if (err) {
 			urlMap[url].error(err);
 
-			return callback(new Error('index page error'));
+			return callback(new Error('page error'));
 		}
 		if (typeof data === 'string') {
 			urlMap[url].state = 'fetched';
 
 			var parseResult = self.parse(data, url);
 			var pathname = urlMap.get(url).pathname;
+			console.log('save file:', path.join(fileRoot, pathname));
 			fs.writeFile(path.join(fileRoot, pathname), parseResult, callback);
+		} else {
+			callback(new Error());
 		}
 	});
 };

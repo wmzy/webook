@@ -1,5 +1,7 @@
 'use strict';
 
+var url = require('url');
+var cheerio = require('cheerio');
 var Fetcher = require('./spider/fetcher');
 var Worker = require('./spider/worker');
 
@@ -10,6 +12,7 @@ function BookMaker(bookConfig) {
 
 BookMaker.prototype.makeContents = function (callback) {
 	var self = this;
+	var baseUrl = this.bookConfig.baseUrl;
 	var contentsUrl = this.bookConfig.contentsUrl;
 	var fetcher = new Fetcher();
 	var contents = [];
@@ -17,17 +20,15 @@ BookMaker.prototype.makeContents = function (callback) {
 		if (err) return callback(err);
 
 		var $ = cheerio.load(html);
-		$.find('#apicontent ul li a').each(function (i) {
+		$('#apicontent ul a').each(function (i) {
 			contents.push({
-				url: this.href,
-				title: i + this.text
+				url: url.resolve(baseUrl, this.attribs.href),
+				title: i + $(this).text()
 			});
 		});
 		self.contents = contents;
 		callback();
 	});
-
-	//
 };
 
 BookMaker.prototype.makeByContents = function (callback) {
@@ -42,14 +43,15 @@ BookMaker.prototype.makeByContents = function (callback) {
 };
 
 BookMaker.prototype.make = function (callback) {
+	var self = this;
 	if (this.bookConfig.contents) {
 		return this.makeByContents(callback);
 	} else if (this.bookConfig.contentsUrl) {
 		return this.makeContents(function (err) {
 			if (err) return callback(err);
 
-			this.makeByContents(callback);
-		})
+			self.makeByContents(callback);
+		});
 	}
 };
 

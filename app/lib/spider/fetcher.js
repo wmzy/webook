@@ -7,8 +7,9 @@ var _ = require('lodash');
 var url = require('url');
 
 function Fetcher(options) {
-	this.options = _.defaults(options, {
-		timeout: 3000,
+	this.options = _.defaults(options || {}, {
+		timeout: 8000,
+		tryTimes: 1,
 		maxContentLength: 102400
 	});
 }

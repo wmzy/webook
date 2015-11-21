@@ -1,10 +1,12 @@
 'use strict';
 
-var BookMaker = require('../../lib/book-maker');
+var should = require('should');
 var _ = require('lodash');
+var BookMaker = require('../../lib/book-maker');
 
-describe('BookMaker tests', function () {
-	it('Should make a book by an url', function () {
+describe.only('BookMaker tests', function () {
+	this.timeout(100000);
+	it('Should make a book by an url', function (done) {
 		var baseUrl = 'http://nodejs.org/api/';
 		var contentsUrl = 'http://nodejs.org/api/index.html';
 
@@ -16,7 +18,8 @@ describe('BookMaker tests', function () {
 
 		bookMaker.make(function (err) {
 			should.not.exist(err);
-		})
+			done();
+		});
 	});
 });
 

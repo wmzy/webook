@@ -142,17 +142,13 @@ module.exports = function (grunt) {
 			all:{
 				src: watchFiles.mochaTests,
 				options: {
-					require: ['server.js', function () {
-						var should = require('should');
-					}]
+					require: ['server.js', 'should']
 				}
 			},
 			lib: {
 				src: ['app/tests/lib/**/*.js'],
 				options: {
-					require: [function () {
-						var should = require('should');
-					}],
+					require: 'should',
 					clearRequireCache: false
 				}
 			}
